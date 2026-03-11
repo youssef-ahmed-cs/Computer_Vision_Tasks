@@ -1,0 +1,2 @@
+Datasets: https://www.kaggle.com/datasets/muhammadmuzamil5500/gemstones .
+Can show model on kaggle: https://www.kaggle.com/code/youssefahmedbfcai/gemstones-classification .
