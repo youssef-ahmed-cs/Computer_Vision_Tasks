@@ -1,6 +1,7 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import numpy as np
 from PIL import Image
 import io
@@ -44,6 +45,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount static files (HTML, CSS, JS, etc.)
+app.mount("/static", StaticFiles(directory="."), name="static")
 
 # Model configuration
 IMG_SIZE = (150, 150)
@@ -153,15 +157,36 @@ async def startup_event():
     print("⏳ TensorFlow and model will be loaded on first request")
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 async def root():
-    """Root endpoint"""
+    """Serve index.html (landing page) at root URL"""
+    try:
+        with open("index.html", "r") as f:
+            return f.read()
+    except FileNotFoundError:
+        return "<h1>Welcome to CNN Image Classification API</h1><p>index.html not found</p>"
+
+
+@app.get("/predict", response_class=HTMLResponse)
+async def predict_page():
+    """Serve predict.html"""
+    try:
+        with open("predict.html", "r") as f:
+            return f.read()
+    except FileNotFoundError:
+        return "<h1>Prediction Page</h1><p>predict.html not found</p>"
+
+
+@app.get("/api")
+async def api_info():
+    """API information endpoint"""
     return {
         "message": "Welcome to CNN Image Classification API",
         "endpoints": {
-            "predict": "/predict",
-            "health": "/health",
-            "classes": "/classes",
+            "predict": "POST /api/predict",
+            "predict-batch": "POST /api/predict-batch",
+            "health": "GET /api/health",
+            "classes": "GET /api/classes",
         },
     }
 

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemstone Classification - CNN Image Classifier</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html,
+        body {
+            height: 100%;
+            overflow: auto;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes float-slow {
+
+            0%,
+            100% {
+                transform: translateY(0px) translateX(0px);
+            }
+
+            50% {
+                transform: translateY(-30px) translateX(20px);
+            }
+        }
+
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .animate-float-slow {
+            animation: float-slow 8s ease-in-out infinite;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Enhanced animated gradient background */
+        .animated-gradient-bg {
+            background: linear-gradient(-45deg, #667eea, #764ba2, #ec4899, #667eea);
+            background-size: 400% 400%;
+            animation: gradient-shift 15s ease infinite;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+
+        /* Floating decorative elements */
+        .bg-decoration {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        .decoration-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.8), transparent);
+            top: -10%;
+            left: -5%;
+            animation: float-slow 20s ease-in-out infinite;
+        }
+
+        .decoration-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.8), transparent);
+            top: 50%;
+            right: -10%;
+            animation: float-slow 25s ease-in-out infinite reverse;
+        }
+
+        .decoration-3 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(118, 75, 162, 0.8), transparent);
+            bottom: -5%;
+            left: 30%;
+            animation: float-slow 30s ease-in-out infinite;
+        }
+
+        .decoration-4 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.6), transparent);
+            bottom: 20%;
+            right: 10%;
+            animation: float-slow 22s ease-in-out infinite reverse;
+        }
+
+        /* Content wrapper with z-index */
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Enhanced glow effect for gemstone emoji */
+        .gemstone-glow {
+            filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.6));
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        /* Overlay gradient for better text contrast */
+        .gradient-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+
+<body class="animated-gradient-bg min-h-screen">
+    <!-- Floating decorative elements -->
+    <div class="bg-decoration decoration-1"></div>
+    <div class="bg-decoration decoration-2"></div>
+    <div class="bg-decoration decoration-3"></div>
+    <div class="bg-decoration decoration-4"></div>
+
+    <!-- Gradient overlay for better contrast -->
+    <div class="gradient-overlay"></div>
+
+    <!-- Main content -->
+    <div class="content-wrapper min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header with Home Button -->
+            <header class="glass rounded-2xl shadow-2xl p-8 mb-8 border border-white/30 backdrop-blur-xl">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-4">
+                    <div class="animate-float flex items-center justify-between flex-1">
+                        <div>
+                            <h1 class="text-5xl md:text-6xl font-bold mb-2 flex items-center gap-3">
+                                <span class="gemstone-glow inline-block">💎</span>
+                                <span
+                                    class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Gemstone
+                                    Classification</span>
+                            </h1>
+                            <p class="text-gray-700 text-lg font-medium ml-16">✨ AI-powered gemstone recognition using
+                                CNN
+                            </p>
+                        </div>
+                        <a href="index.html"
+                            class="px-6 py-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 whitespace-nowrap">
+                            <i class="fas fa-home mr-2"></i>Home
+                        </a>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 px-6 py-4 bg-gradient-to-br from-white/80 to-slate-50/80 rounded-xl border border-white/40 backdrop-blur-md hover:shadow-lg transition-all duration-300">
+                        <div class="w-4 h-4 rounded-full bg-red-500 animate-pulse" id="statusIndicator"></div>
+                        <span class="font-bold text-gray-800 text-sm" id="statusText">Checking...</span>
+                    </div>
+                </div>
+
+                <!-- Kaggle Links -->
+                <div class="flex flex-wrap gap-3 pt-6 border-t border-white/20">
+                    <a href="https://www.kaggle.com/datasets/muhammadmuzamil5500/gemstones" target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 border border-blue-400/50">
+                        <i class="fas fa-database"></i>
+                        📊 Kaggle Dataset
+                    </a>
+                    <a href="https://www.kaggle.com/code/youssefahmedbfcai/gemstones-classification" target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 border border-orange-400/50">
+                        <i class="fas fa-code"></i>
+                        💻 Kaggle Notebook
+                    </a>
+                    <a href="https://github.com/youssef-ahmed-cs/Computer_Vision_Tasks" target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-900 text-white font-bold rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 border border-gray-600/50">
+                        <i class="fab fa-github"></i>
+                        🔗 GitHub Repo
+                    </a>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="glass rounded-2xl shadow-2xl p-8 mb-8 border border-white/30 backdrop-blur-xl">
+                <!-- Mode Selector -->
+                <div
+                    class="flex gap-4 mb-8 border-b-2 border-gradient-to-r from-indigo-200 via-purple-200 to-transparent">
+                    <button
+                        class="mode-btn active px-6 py-3 font-bold text-lg border-b-4 border-transparent transition-all duration-300 hover:text-indigo-600 text-gray-600 relative group"
+                        data-mode="single">
+                        <i class="fas fa-camera mr-2"></i>Single Image
+                        <span
+                            class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    </button>
+                    <button
+                        class="mode-btn px-6 py-3 font-bold text-lg border-b-4 border-transparent transition-all duration-300 hover:text-indigo-600 text-gray-600 relative group"
+                        data-mode="batch">
+                        <i class="fas fa-folder-open mr-2"></i>Batch Upload
+                        <span
+                            class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    </button>
+                </div>
+
+                <!-- Single Image Mode -->
+                <section class="mode-section active" id="singleMode">
+                    <div class="upload-area border-4 border-dashed border-indigo-400 rounded-3xl p-16 text-center transition-all duration-300 hover:border-indigo-500 hover:bg-indigo-50/80 cursor-pointer bg-gradient-to-br from-indigo-50/60 to-purple-50/60 hover:shadow-2xl hover:scale-105 group"
+                        id="uploadArea">
+                        <div class="mb-6">
+                            <i
+                                class="fas fa-cloud-upload-alt text-7xl text-indigo-500 mb-4 inline-block group-hover:text-purple-600 transition-colors duration-300 drop-shadow-lg"></i>
+                        </div>
+                        <h3
+                            class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-3">
+                            Drag and drop your image here</h3>
+                        <p class="text-gray-600 mb-4 font-medium">or</p>
+                        <label
+                            class="inline-block px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-bold rounded-xl hover:shadow-xl hover:scale-110 transition-all duration-300 cursor-pointer mb-6 text-lg drop-shadow-lg">
+                            📁 Browse Files
+                            <input type="file" id="singleImageInput" accept="image/*" hidden>
+                        </label>
+                        <p class="text-sm text-gray-600 mt-4 font-medium">✨ Supported formats: JPG, PNG, GIF, WEBP (Min.
+                            150x150px)</p>
+                        <!-- Prediction Result -->
+                        <div class="result-container grid grid-cols-1 md:grid-cols-2 gap-8 mt-8"
+                            id="singleResultContainer" style="display: none;">
+                            <div class="flex justify-center items-center">
+                                <img id="resultImage" src="" alt="Uploaded image"
+                                    class="max-w-full max-h-96 rounded-2xl shadow-2xl object-contain">
+                            </div>
+                            <div class="flex flex-col justify-center">
+                                <div
+                                    class="bg-gradient-to-br from-indigo-600 to-purple-600 text-white p-8 rounded-2xl mb-6 shadow-lg">
+                                    <h2 class="text-lg opacity-90 mb-2">Predicted Class</h2>
+                                    <div class="text-4xl font-bold mb-3" id="predictedClassName">-</div>
+                                    <div class="text-lg opacity-95">
+                                        Confidence: <span id="confidence" class="font-bold">0%</span>
+                                    </div>
+                                </div>
+
+                                <!-- Probabilities Chart -->
+                                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                                    <h3 class="font-bold text-gray-800 mb-4 text-lg">All Predictions</h3>
+                                    <div class="space-y-3" id="probabilityList"></div>
+                                </div>
+
+                                <button
+                                    class="upload-another-btn mt-6 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300"
+                                    id="uploadAnotherBtn">
+                                    <i class="fas fa-redo mr-2"></i>Upload Another Image
+                            </div>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div class="loading-container flex flex-col items-center justify-center py-16"
+                            id="singleLoadingContainer" style="display: none;">
+                            <div
+                                class="w-16 h-16 border-4 border-gray-300 border-t-indigo-600 rounded-full animate-spin mb-4">
+                            </div>
+                            <p class="text-gray-600 text-lg font-semibold">Analyzing image...</p>
+                </section>
+
+                <!-- Batch Mode -->
+                <section class="mode-section" id="batchMode" style="display: none;">
+                    <div class="batch-upload-area border-4 border-dashed border-indigo-300 rounded-2xl p-16 text-center transition-all duration-300 hover:border-indigo-500 hover:bg-indigo-50 cursor-pointer bg-gradient-to-br from-indigo-50 to-purple-50"
+                        id="batchUploadArea">
+                        <div class="mb-4">
+                            <i class="fas fa-images text-6xl text-indigo-500 mb-4 inline-block"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">Upload multiple images</h3>
+                        <p class="text-gray-600 mb-4">Select 2 or more images for batch processing</p>
+                        <label
+                            class="inline-block px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer mb-4">
+                            Select Files
+                            <input type="file" id="batchImageInput" accept="image/*" multiple hidden>
+                        </label>
+                        <p class="text-sm text-gray-500 mt-4">Maximum 20 images per batch</p>
+                        <!-- Batch Results -->
+                        <div class="batch-results-container mt-8" id="batchResultsContainer" style="display: none;">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-6">Batch Results</h2>
+                            <div class="batch-stats grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                                <div
+                                    class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border-l-4 border-blue-500">
+                                    <span class="text-gray-600 text-sm font-semibold block mb-2">Total Images</span>
+                                    <span class="text-3xl font-bold text-blue-600" id="totalImages">0</span>
+                                </div>
+                                <div
+                                    class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border-l-4 border-green-500">
+                                    <span class="text-gray-600 text-sm font-semibold block mb-2">Processed</span>
+                                    <span class="text-3xl font-bold text-green-600" id="processedImages">0</span>
+                                </div>
+                                <div
+                                    class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border-l-4 border-purple-500">
+                                    <span class="text-gray-600 text-sm font-semibold block mb-2">Time Taken</span>
+                                    <span class="text-3xl font-bold text-purple-600" id="timeTaken">-</span>
+                                </div>
+                            </div>
+
+                            <div class="batch-results-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
+                                id="batchResultsGrid"></div>
+
+                            <button
+                                class="upload-another-btn w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300"
+                                id="uploadAnotherBatchBtn">
+                                <i class="fas fa-redo mr-2"></i>Upload Another Batch
+                        </div>
+
+                        <!-- Batch Loading State -->
+                        <div class="loading-container flex flex-col items-center justify-center py-16"
+                            id="batchLoadingContainer" style="display: none;">
+                            <div
+                                class="w-16 h-16 border-4 border-gray-300 border-t-indigo-600 rounded-full animate-spin mb-4">
+                            </div>
+                            <p class="text-gray-600 text-lg font-semibold mb-4" id="batchLoadingText">Uploading and
+                                analyzing images...</p>
+                            <div class="w-full max-w-xs bg-gray-200 rounded-full h-3 overflow-hidden">
+                                <div class="progress-fill bg-gradient-to-r from-indigo-600 to-purple-600 h-full w-0 transition-all duration-300"
+                                    id="progressFill"></div>
+                            </div>
+                            <p class="text-gray-500 mt-3 text-sm" id="progressText">0/0 images processed</p>
+                </section>
+            </main>
+
+            <!-- Class Names Reference -->
+            <section
+                class="glass rounded-3xl shadow-2xl p-10 mb-8 border border-white/30 backdrop-blur-xl bg-gradient-to-br from-white/40 to-white/20">
+                <h2
+                    class="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-8">
+                    📋 All Gemstone Class Names</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <!-- Authentic Gemstones -->
+                    <div
+                        class="p-8 bg-gradient-to-br from-green-50/80 to-emerald-50/80 rounded-2xl border-2 border-green-300/50 backdrop-blur-sm hover:shadow-xl hover:scale-105 transition-all duration-300">
+                        <h3 class="text-2xl font-bold text-green-800 mb-6 flex items-center gap-3">
+                            <span class="text-3xl">✅</span> AUTHENTIC (Real Gemstones)
+                        </h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-center gap-3 text-gray-700">
+                                <span class="text-2xl">💚</span>
+                                <div>
+                                    <code
+                                        class="bg-green-100 px-3 py-1 rounded text-sm font-mono font-bold">Emerald</code>
+                                    <p class="text-xs text-gray-600 mt-1">Natural green gemstone</p>
+                                </div>
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700">
+                                <span class="text-2xl">❤️</span>
+                                <div>
+                                    <code class="bg-red-100 px-3 py-1 rounded text-sm font-mono font-bold">Ruby</code>
+                                    <p class="text-xs text-gray-600 mt-1">Natural deep red gemstone</p>
+                                </div>
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700">
+                                <span class="text-2xl">💙</span>
+                                <div>
+                                    <code
+                                        class="bg-blue-100 px-3 py-1 rounded text-sm font-mono font-bold">Turquoise</code>
+                                    <p class="text-xs text-gray-600 mt-1">Natural blue-green gemstone</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- Imitation Gemstones -->
+                    <div
+                        class="p-8 bg-gradient-to-br from-red-50/80 to-pink-50/80 rounded-2xl border-2 border-red-300/50 backdrop-blur-sm hover:shadow-xl hover:scale-105 transition-all duration-300">
+                        <h3 class="text-2xl font-bold text-red-800 mb-6 flex items-center gap-3">
+                            <span class="text-3xl">❌</span> IMITATION (Fake/Synthetic)
+                        </h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-center gap-3 text-gray-700">
+                                <span class="text-2xl">🟢</span>
+                                <div>
+                                    <code
+                                        class="bg-green-100 px-3 py-1 rounded text-sm font-mono font-bold">Fake_Emerald</code>
+                                    <p class="text-xs text-gray-600 mt-1">Synthetic/glass emerald imitation</p>
+                                </div>
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700">
+                                <span class="text-2xl">🔴</span>
+                                <div>
+                                    <code
+                                        class="bg-red-100 px-3 py-1 rounded text-sm font-mono font-bold">Fake_Ruby</code>
+                                    <p class="text-xs text-gray-600 mt-1">Synthetic/glass ruby imitation</p>
+                                </div>
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700">
+                                <span class="text-2xl">🔵</span>
+                                <div>
+                                    <code
+                                        class="bg-blue-100 px-3 py-1 rounded text-sm font-mono font-bold">Fake_Turquoise</code>
+                                    <p class="text-xs text-gray-600 mt-1">Dyed/synthetic turquoise imitation</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="p-4 bg-amber-50 border-l-4 border-amber-500 rounded">
+                    <p class="text-amber-900 text-sm"><strong>📌 Note:</strong> These are the exact class names the
+                        model will return. Class names with underscores (e.g., <code
+                            class="bg-amber-100 px-2 py-1 rounded">Fake_Emerald</code>) must be matched exactly.</p>
+                </div>
+            </section>
+
+            <!-- Error Toast -->
+            <div class="toast fixed bottom-8 left-1/2 -translate-x-1/2 bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-4 rounded-xl shadow-2xl transition-all duration-300 -translate-y-40 opacity-0 pointer-events-none font-semibold border border-red-400/50 backdrop-blur-sm"
+                id="errorToast"></div>
+        </div>
+
+        <script src="script.js"></script>
+</body>
+
+</html>
