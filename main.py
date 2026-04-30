@@ -198,6 +198,18 @@ async def serve_script():
     )
 
 
+@app.get("/styles.css")
+async def serve_styles():
+    """Serve styles.css"""
+    if os.path.exists("styles.css"):
+        return FileResponse("styles.css", media_type="text/css")
+    return HTMLResponse(
+        "/* styles.css not found on server */",
+        status_code=404,
+        media_type="text/css",
+    )
+
+
 @app.get("/static/{file_path:path}")
 async def serve_static(file_path: str):
     """Serve static files"""

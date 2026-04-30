@@ -62,17 +62,11 @@ function updateAPIStatus(isActive) {
   const statusText = document.getElementById("statusText");
 
   if (isActive) {
-    statusIndicator.classList.remove("bg-red-500", "animate-pulse");
-    statusIndicator.classList.add("bg-green-500");
+    statusIndicator.classList.add("active");
     statusText.textContent = "API Connected";
-    statusText.classList.remove("text-red-600");
-    statusText.classList.add("text-green-600");
   } else {
-    statusIndicator.classList.remove("bg-green-500");
-    statusIndicator.classList.add("bg-red-500", "animate-pulse");
+    statusIndicator.classList.remove("active");
     statusText.textContent = "API Disconnected";
-    statusText.classList.remove("text-green-600");
-    statusText.classList.add("text-red-600");
     showToast(
       "API is not connected. Make sure the server is running.",
       "warning",
@@ -164,19 +158,10 @@ function switchMode(e) {
     e.target.dataset.mode || e.target.closest(".mode-btn").dataset.mode;
   currentMode = newMode;
 
-  // Update buttons
   document.querySelectorAll(".mode-btn").forEach((btn) => {
-    btn.classList.remove("border-indigo-600", "text-indigo-600");
-    btn.classList.add("border-transparent", "text-gray-600");
+    btn.classList.toggle("active", btn.dataset.mode === newMode);
   });
-  e.target
-    .closest(".mode-btn")
-    .classList.remove("border-transparent", "text-gray-600");
-  e.target
-    .closest(".mode-btn")
-    .classList.add("border-indigo-600", "text-indigo-600");
 
-  // Update sections
   document.querySelectorAll(".mode-section").forEach((section) => {
     section.classList.remove("active");
     section.style.display = "none";
@@ -196,14 +181,12 @@ function switchMode(e) {
 // Drag and Drop
 function handleDragOver(e) {
   e.preventDefault();
-  e.currentTarget.classList.remove("border-indigo-300", "bg-indigo-50");
-  e.currentTarget.classList.add("border-indigo-600", "bg-indigo-100");
+  e.currentTarget.classList.add("dragover");
 }
 
 function handleDragLeave(e) {
   e.preventDefault();
-  e.currentTarget.classList.remove("border-indigo-600", "bg-indigo-100");
-  e.currentTarget.classList.add("border-indigo-300", "bg-indigo-50");
+  e.currentTarget.classList.remove("dragover");
 }
 
 function handleSingleDrop(e) {
@@ -314,15 +297,13 @@ function displaySingleResult(file, result) {
   sorted.forEach(([classLabel, probability]) => {
     const percentage = (probability * 100).toFixed(1);
     const item = document.createElement("div");
-    item.className = "flex items-center gap-3";
+    item.className = "probability-item";
     item.innerHTML = `
-            <div class="flex-shrink-0 w-32 font-semibold text-gray-700">${classLabel.replace("_", " ")}</div>
-            <div class="flex-grow h-6 bg-white border border-gray-300 rounded-lg overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-end pr-2" style="width: ${percentage}%">
-                    <span class="text-xs font-bold text-white">${percentage}%</span>
-                </div>
+            <div class="probability-label">${classLabel.replace("_", " ")}</div>
+            <div class="probability-bar">
+                <div class="probability-fill" style="width: ${percentage}%"></div>
             </div>
-            <div class="flex-shrink-0 w-16 text-right font-bold text-indigo-600">${percentage}%</div>
+            <div class="probability-value">${percentage}%</div>
         `;
     probabilityList.appendChild(item);
   });
@@ -409,17 +390,17 @@ function displayBatchResults(predictions, files, timeTaken) {
   predictions.forEach((result, index) => {
     const file = files[index];
     const card = document.createElement("div");
-    card.className =
-      "bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105";
+    card.className = "result-card";
 
     if (result.error) {
       card.innerHTML = `
-                <div class="w-full h-48 flex items-center justify-center bg-red-100">
-                    <span class="text-4xl">❌</span>
+                <div class="result-card-error-art">
+                    <i class="fa-solid fa-circle-exclamation"></i>
                 </div>
-                <div class="p-4">
-                    <div class="font-semibold text-gray-800 truncate text-sm">${result.filename}</div>
-                    <div class="text-red-600 font-semibold text-sm mt-2">Error: ${result.error}</div>
+                <div class="result-card-content">
+                    <div class="result-card-filename">${result.filename}</div>
+                    <div class="result-card-class">Could not classify</div>
+                    <div class="result-card-confidence"><span>Error</span><strong>${result.error}</strong></div>
                 </div>
             `;
     } else {
@@ -427,19 +408,17 @@ function displayBatchResults(predictions, files, timeTaken) {
       const emoji = GEMSTONE_EMOJIS[result.predicted_class] || "💎";
 
       card.innerHTML = `
-                <img class="w-full h-48 object-cover" src="${URL.createObjectURL(file)}" alt="${result.filename}">
-                <div class="p-4">
-                    <div class="font-semibold text-gray-800 truncate text-sm mb-2">${result.filename}</div>
-                    <div class="text-lg font-bold text-indigo-600 mb-2">${emoji} ${result.predicted_class.replace("_", " ")}</div>
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-gray-600">Confidence:</span>
-                        <span class="font-bold text-green-600">${confidence}%</span>
+                <img src="${URL.createObjectURL(file)}" alt="${result.filename}">
+                <div class="result-card-content">
+                    <div class="result-card-filename">${result.filename}</div>
+                    <div class="result-card-class">${emoji} ${result.predicted_class.replace("_", " ")}</div>
+                    <div class="result-card-confidence">
+                        <span>Confidence</span>
+                        <strong>${confidence}%</strong>
                     </div>
                 </div>
             `;
 
-      // Add click to see details
-      card.style.cursor = "pointer";
       card.addEventListener("click", () => {
         showDetailedResult(result, file);
       });
@@ -452,16 +431,38 @@ function displayBatchResults(predictions, files, timeTaken) {
 }
 
 function showDetailedResult(result, file) {
-  // Create a modal or expanded view
-  alert(`
-Gemstone: ${result.predicted_class}
-Confidence: ${(result.confidence * 100).toFixed(2)}%
+  const modal = document.getElementById("detailModal");
+  const content = document.getElementById("detailModalContent");
 
-Full Predictions:
-${Object.entries(result.all_predictions)
-  .map(([name, prob]) => `${name}: ${(prob * 100).toFixed(2)}%`)
-  .join("\n")}
-    `);
+  if (!modal || !content) {
+    alert(`${result.predicted_class}: ${(result.confidence * 100).toFixed(2)}%`);
+    return;
+  }
+
+  const predictions = Object.entries(result.all_predictions || {}).sort(
+    (a, b) => b[1] - a[1],
+  );
+
+  content.innerHTML = `
+    <h2 class="modal-title">${result.predicted_class.replace("_", " ")}</h2>
+    <p class="modal-subtitle">${result.filename || file.name} · ${(result.confidence * 100).toFixed(2)}% confidence</p>
+    <div class="probability-list">
+      ${predictions
+        .map(([name, prob]) => {
+          const percentage = (prob * 100).toFixed(1);
+          return `
+            <div class="probability-item">
+              <div class="probability-label">${name.replace("_", " ")}</div>
+              <div class="probability-bar"><div class="probability-fill" style="width:${percentage}%"></div></div>
+              <div class="probability-value">${percentage}%</div>
+            </div>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
 }
 
 function resetBatchMode() {
@@ -476,34 +477,26 @@ function showToast(message, type = "info") {
   const toast = document.getElementById("errorToast");
   toast.textContent = message;
 
-  // Set base classes
-  toast.className =
-    "toast fixed bottom-0 left-1/2 -translate-x-1/2 px-6 py-4 rounded-lg shadow-2xl transition-all duration-300 text-white font-semibold";
-
-  // Set color based on type
-  if (type === "success") {
-    toast.classList.add("bg-green-500");
-  } else if (type === "warning") {
-    toast.classList.add("bg-amber-500");
-  } else if (type === "danger") {
-    toast.classList.add("bg-red-500");
-  } else {
-    toast.classList.add("bg-blue-500");
-  }
-
-  // Show toast
-  toast.classList.remove("pointer-events-none", "opacity-0", "-translate-y-32");
-  toast.classList.add("pointer-events-auto", "opacity-100", "-translate-y-6");
+  toast.className = `toast ${type}`;
+  requestAnimationFrame(() => toast.classList.add("show"));
 
   setTimeout(() => {
-    toast.classList.remove(
-      "pointer-events-auto",
-      "opacity-100",
-      "-translate-y-6",
-    );
-    toast.classList.add("pointer-events-none", "opacity-0", "-translate-y-32");
+    toast.classList.remove("show");
   }, 3000);
 }
 
 // Keep API status updated
 setInterval(checkAPIStatus, 10000);
+
+document.addEventListener("click", (event) => {
+  const modal = document.getElementById("detailModal");
+  if (!modal) return;
+
+  if (
+    event.target.id === "detailModal" ||
+    event.target.closest("#closeDetailModal")
+  ) {
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+  }
+});

@@ -1,0 +1,16 @@
+INFO:     Started server process [1560]
+INFO:     Waiting for application startup.
+ERROR:    Traceback (most recent call last):
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python310\lib\site-packages\starlette\routing.py", line 638, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python310\lib\site-packages\fastapi\routing.py", line 241, in __aenter__
+    await self._router._startup()
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python310\lib\site-packages\fastapi\routing.py", line 4884, in _startup
+    await handler()
+  File "D:\Task 2 CNN\3- CNN-Image Classification\main.py", line 156, in startup_event
+    print("\U0001f680 API Server starting...")
+  File "C:\Users\DELL\AppData\Local\Programs\Python\Python310\lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>
+
+ERROR:    Application startup failed. Exiting.
