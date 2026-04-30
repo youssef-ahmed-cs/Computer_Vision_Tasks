@@ -177,6 +177,32 @@ async def predict_page():
         return "<h1>Prediction Page</h1><p>predict.html not found</p>"
 
 
+@app.get("/script.js")
+async def serve_script():
+    """Serve script.js"""
+    try:
+        with open("script.js", "r") as f:
+            return f.read()
+    except FileNotFoundError:
+        return "console.error('script.js not found on server')"
+
+
+@app.get("/static/{file_path:path}")
+async def serve_static(file_path: str):
+    """Serve static files"""
+    try:
+        with open(file_path, "r") as f:
+            content = f.read()
+            if file_path.endswith(".js"):
+                return content
+            elif file_path.endswith(".css"):
+                return content
+            else:
+                return content
+    except FileNotFoundError:
+        return {"error": "File not found"}
+
+
 @app.get("/api")
 async def api_info():
     """API information endpoint"""
@@ -215,15 +241,16 @@ async def predict(file: UploadFile = File(...)):
         Prediction results with class probabilities
     """
     global model
-    
+
     # Lazy load model on first request
     if model is None:
         print("Loading model on first prediction request...")
         load_model()
-    
+
     if model is None:
         raise HTTPException(
-            status_code=503, detail="Model not available. Please ensure models/cnn_best.keras exists."
+            status_code=503,
+            detail="Model not available. Please ensure models/cnn_best.keras exists.",
         )
 
     try:
@@ -279,15 +306,16 @@ async def predict_batch(files: list[UploadFile] = File(...)):
         List of prediction results
     """
     global model
-    
+
     # Lazy load model on first request
     if model is None:
         print("Loading model on first prediction request...")
         load_model()
-    
+
     if model is None:
         raise HTTPException(
-            status_code=503, detail="Model not available. Please ensure models/cnn_best.keras exists."
+            status_code=503,
+            detail="Model not available. Please ensure models/cnn_best.keras exists.",
         )
 
     results = []
